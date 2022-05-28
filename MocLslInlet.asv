@@ -1,0 +1,75 @@
+classdef MocLslInlet < handle
+    %MOCLSLINLET Summary of this class goes here
+    %   Detailed explanation goes here
+    
+    properties
+        LastRequestedTime
+    end
+    
+    methods
+        function obj = MocLslInlet()
+            %MOCLSLINLET Construct an instance of this class
+            %   Detailed explanation goes here
+            obj.LastRequestedTime = 0;
+        end
+        
+        function z = wave(~, t)
+            %METHOD1 Summary of this method goes here
+            %   Detailed explanation goes here
+            z = sin(t) + sin(2 * t) + sin(3 * t) + sin(5 * t) + sin(7 * t);
+        end
+
+        function open_stream(~, ~)
+            
+        end
+        function close_stream(~, ~)
+           
+        end
+
+
+        function [chunk,timestamps] = pull_chunk(obj)
+            % Pull a chunk of numeric samples and their timestamps from the inlet.
+            % [ChunkData,Timestamps] = pull_chunk()
+            %
+            % This function obtains a chunk of data from the inlet; the chunk contains all samples
+            % that have become available since the last chunk/sample was requested. Note that the 
+            % result may be empty. For each returned sample there is also a timestamp being
+            % returned.
+            %
+            % Out:
+            %   ChunkData : The chunk contents; this is a MxN matrix with one column per returned
+            %               sample (and as many rows as the stream has channels).
+            %
+            %   Timestamps : A vector of timestamps for the returned samples.
+%             waitTimeMS = fix(rand * 1000);
+%             pause(waitTimeMS / 1000);
+            tic;
+            timeNow = posixtime(datetime('now'));
+            PERIOD = 4;
+            NOISE_AMP = 0.4;
+
+            timestamps = [];
+            chunk = [];
+
+            if obj.LastRequestedTime > 0
+                timeStart = floorMul(obj.LastRequestedTime, PERIOD);
+                timeEnd = ceilingMulOpen(timeNow, PERIOD);
+                disp(timeStart)
+                timestamps = zeros(1, (timeEnd - timeStart)/PERIOD + 1);
+                chunk = zeros((timeEnd - timeStart)/PERIOD + 1, 5);
+                idx = 1;
+                for t = timeStart:PERIOD:timeEnd
+                    timestamps(1, idx) = t;
+                    for j = 1:4
+                        noise = (rand - 0.5) * NOISE_AMP * 2;
+                        chunk(idx, j) = obj.wave(t) + noise;
+                    end
+                    idx = idx + 1;
+                end
+            end
+            obj.LastRequestedTime = timeNow;
+            disp(toc);
+        end
+    end
+end
+
