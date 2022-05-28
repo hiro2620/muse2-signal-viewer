@@ -1,29 +1,33 @@
 classdef MocLslInlet < handle
     %MOCLSLINLET Summary of this class goes here
     %   Detailed explanation goes here
+
+
+
+
+    
     
     properties
         LastRequestedTime
     end
-    
+
     methods
         function obj = MocLslInlet()
             %MOCLSLINLET Construct an instance of this class
             %   Detailed explanation goes here
             obj.LastRequestedTime = 0;
         end
-        
+
         function z = wave(~, t)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
-            z = sin(10 * t) + sin(20 * t) + sin(30 * t) + sin(50 * t) + sin(70 * t);
+%             z = sin(10*t) + 2*sin(20*t) + sin(30*t) + 2*sin(50*t) + sin(70*t);
+            z = sin(10*t) + 2*sin(20*t) + sin(30*t) + 2*sin(50*t) + sin(70*t) + (rand-0.5);
         end
 
         function open_stream(~, ~)
-            
+
         end
         function close_stream(~, ~)
-           
+
         end
 
 
@@ -32,7 +36,7 @@ classdef MocLslInlet < handle
             % [ChunkData,Timestamps] = pull_chunk()
             %
             % This function obtains a chunk of data from the inlet; the chunk contains all samples
-            % that have become available since the last chunk/sample was requested. Note that the 
+            % that have become available since the last chunk/sample was requested. Note that the
             % result may be empty. For each returned sample there is also a timestamp being
             % returned.
             %
@@ -45,7 +49,6 @@ classdef MocLslInlet < handle
 %             pause(waitTimeMS / 1000);
             timeNow = posixtime(datetime('now')) * 1000;
             PERIOD = 4;
-            NOISE_AMP = 0.4;
 
             timestamps = [];
             chunk = [];
@@ -60,8 +63,7 @@ classdef MocLslInlet < handle
                 for t = timeStart:PERIOD:timeEnd
                     timestamps(1, idx) = t;
                     for j = 1:4
-                        noise = (rand - 0.5) * NOISE_AMP * 2;
-                        chunk(idx, j) = obj.wave(t) + noise;
+                        chunk(idx, j) = obj.wave(t);
                     end
                     idx = idx + 1;
                 end
