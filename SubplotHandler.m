@@ -8,7 +8,7 @@ classdef SubplotHandler < handle
     end
     
     methods
-        function obj = SubplotHandler(fig,pos,tit,xla,yla,yli)
+        function obj = SubplotHandler(fig,pos,tit,xla,yla,xli,yli)
             %FIGUREHANDLER Construct an instance of this class
             %   Detailed explanation goes here
             obj.Fig = fig;
@@ -18,8 +18,12 @@ classdef SubplotHandler < handle
             title(tit);
             xlabel(xla);
             ylabel(yla);
-            ylim(yli);
-%             xlim([8,14]);
+            if xli(1) ~= 0 || xli(2) ~= 0
+                xlim(xli);
+            end
+            if yli(1) ~= 0 || yli(2) ~= 0
+                ylim(yli);
+            end
         end
         
         function update(obj, x, y)

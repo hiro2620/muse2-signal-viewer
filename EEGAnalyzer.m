@@ -17,8 +17,6 @@ classdef EEGAnalyzer < handle
             %EEGANALYZER Construct an instance of this class
             %   Detailed explanation goes here
             obj.Inlet = inlet;
-%             obj.PHRaw = SubplotHandler(subplot(2,2,1), 'Average of Raw Data', 'time[ms]', 'EEG[mV]', [-4 4]);
-%             obj.PHFft = SubplotHandler(subplot(2,2,2), 'Single-Sided Amplitude Spectrum', 'f[Hz]', '|P1(f)|', [0 2]);
             obj.Fig = figure;
             obj.PRaw = SubplotHandler( ...
                 obj.Fig, ...
@@ -26,6 +24,7 @@ classdef EEGAnalyzer < handle
                 'Raw Data', ...
                 'time[ms]', ...
                 'EEG[mV]', ...
+                [0 0], ...
                 [0 500] ...
             );
             obj.PFft = SubplotHandler( ...
@@ -34,7 +33,8 @@ classdef EEGAnalyzer < handle
                 'Single-Sided Amplitude Spectrum', ...
                 'f[Hz]', ...
                 '|P1(f)|', ...
-                [0 10] ...
+                [0 100], ...
+                [0 120] ...
             );
             obj.FFT = fftHandlerInstance;
         end
@@ -49,27 +49,26 @@ classdef EEGAnalyzer < handle
         function analyzePeriod(obj, duration)
             timerId = tic;
             [vec,ts] = obj.Inlet.pull_chunk();
-%             disp(size(vec));
-%             disp(size(ts));
             if size(ts,2) == 0
+                pause(duration);
                 return
             end
 %             disp(size(vec));
 %             disp(size(ts));
             vec(5,:) = [];
-%             data = transpose(mean(vec,2));
             data = mean(vec,1);
             obj.DataStack = horzcat(obj.DataStack, data);
-            if length(obj.DataStack) > obj.FFT.SampleCnt
-                obj.DataStack = obj.DataStack(1, length(obj.DataStack)-obj.FFT.SampleCnt+1:length(obj.DataStack));
+
+            dslen = size(obj.DataStack, 2);
+            if dslen > obj.FFT.SampleCnt
+                obj.DataStack = obj.DataStack(1, dslen-obj.FFT.SampleCnt+1:dslen);
             end
 
             obj.PRaw.update(ts, data);
 
             % FFT
-            if length(obj.DataStack) == obj.FFT.SampleCnt
+            if size(obj.DataStack, 2) == obj.FFT.SampleCnt
                 [f, P1] = obj.FFT.getSpectrum(obj.DataStack);
-%                 obj.PHFft.update(f,P1);
                 obj.PFft.update(f, P1);
             end
             drawnow;
@@ -78,7 +77,7 @@ classdef EEGAnalyzer < handle
             if duration > elapsed
                 pause(duration - elapsed);
             else
-%                 warning('analyze took too long time. (%.3fs)', elapsed);
+                warning('analyze took too long time. (%.3fs)', elapsed);
             end
         end
     end

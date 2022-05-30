@@ -2,35 +2,30 @@ classdef MocLslInlet < handle
     %MOCLSLINLET Summary of this class goes here
     %   Detailed explanation goes here
 
-
-
-
-    
-    
     properties
-        LastRequestedTime;
+        SamplingInterval;
+        LastRequestedTime = 0;
         StartTime;
     end
 
     methods
-        function obj = MocLslInlet()
+        function obj = MocLslInlet(samplingRate)
             %MOCLSLINLET Construct an instance of this class
             %   Detailed explanation goes here
-            obj.LastRequestedTime = 0;
+            obj.SamplingInterval = 1000 / samplingRate;
         end
 
         function z = wave(~, t)
 %             z = sin(10*t) + 2*sin(20*t) + sin(30*t) + 2*sin(50*t) + sin(70*t);
-            z = sin(10*t) + 2*sin(20*t) + sin(30*t) + 2*sin(50*t) + sin(70*t) + (rand-0.5);
+            z = 50 * (sin(2*pi*10*t) + 2*sin(2*pi*20*t) + sin(2*pi*30*t) + 2*sin(2*pi*50*t) + sin(2*pi*70*t) + 1.5 * (rand-0.5)) + 300;
         end
 
         function open_stream(obj, ~)
             obj.StartTime = posixtime(datetime('now')) * 1000;
         end
+
         function close_stream(~, ~)
-
         end
-
 
         function [chunk,timestamps] = pull_chunk(obj)
             % Pull a chunk of numeric samples and their timestamps from the inlet.
@@ -46,25 +41,23 @@ classdef MocLslInlet < handle
             %               sample (and as many rows as the stream has channels).
             %
             %   Timestamps : A vector of timestamps for the returned samples.
-%             waitTimeMS = fix(rand * 1000);
-%             pause(waitTimeMS / 1000);
             timeNow = posixtime(datetime('now')) * 1000 - obj.StartTime;
-            PERIOD = 4;
+            interval = obj.SamplingInterval;
 
-            timestamps = [];
-            chunk = [];
+            timestamps = zeros(1,0);
+            chunk = zeros(5,0);
 
             if obj.LastRequestedTime > 0
-                timeStart = floorMul(obj.LastRequestedTime, PERIOD);
-                timeEnd = ceilingMulOpen(timeNow, PERIOD);
+                timeStart = floorMul(obj.LastRequestedTime, interval);
+                timeEnd = ceilingMulOpen(timeNow, interval);
 %                 disp(timeStart);
-                timestamps = zeros(1, (timeEnd - timeStart)/PERIOD + 1);
-                chunk = zeros(5, (timeEnd - timeStart)/PERIOD + 1);
+                timestamps = zeros(1, (timeEnd - timeStart)/interval + 1);
+                chunk = zeros(5, (timeEnd - timeStart)/interval + 1);
                 idx = 1;
-                for t = timeStart:PERIOD:timeEnd
+                for t = timeStart:interval:timeEnd
                     timestamps(1, idx) = t;
                     for j = 1:4
-                        chunk(j, idx) = obj.wave(t);
+                        chunk(j, idx) = obj.wave(t/1000);
                     end
                     idx = idx + 1;
                 end
