@@ -8,8 +8,7 @@ classdef EEGAnalyzer < handle
         PFft;
         FFT;
         Fig;
-        DataStack = [];
-
+        DataQueue = zeros(2,0);
     end
 
     methods
@@ -56,19 +55,18 @@ classdef EEGAnalyzer < handle
 %             disp(size(vec));
 %             disp(size(ts));
             vec(5,:) = [];
-            data = mean(vec,1);
-            obj.DataStack = horzcat(obj.DataStack, data);
+            obj.DataQueue = horzcat(obj.DataQueue, vertcat(ts, mean(vec,1)));
 
-            dslen = size(obj.DataStack, 2);
+            dslen = size(obj.DataQueue, 2);
             if dslen > obj.FFT.SampleCnt
-                obj.DataStack = obj.DataStack(1, dslen-obj.FFT.SampleCnt+1:dslen);
+                obj.DataQueue = obj.DataQueue(:, dslen-obj.FFT.SampleCnt+1:dslen);
             end
 
-            obj.PRaw.update(ts, data);
+            obj.PRaw.update(obj.DataQueue(1,:), obj.DataQueue(2,:));
 
             % FFT
-            if size(obj.DataStack, 2) == obj.FFT.SampleCnt
-                [f, P1] = obj.FFT.getSpectrum(obj.DataStack);
+            if size(obj.DataQueue, 2) == obj.FFT.SampleCnt
+                [f, P1] = obj.FFT.getSpectrum(obj.DataQueue(2,:));
                 obj.PFft.update(f, P1);
             end
             drawnow;

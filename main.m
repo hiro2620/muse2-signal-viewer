@@ -3,10 +3,10 @@ addpath(genpath('./util'));
 
 STREAM_NAME = 'PetalStream2';
 EXIT_KEY_CODE_NAME = 'ESCAPE';
-ANALYZE_INTERVAL = 0.5; %[s]
+ANALYZE_INTERVAL = 0.1; %[s]
 
 MUSE_SAMPLING_RATE = 256;
-FFT_TIME_WINDOW = 4.0; %[s]
+FFT_TIME_WINDOW = 2.0; %[s]
 
 initKeyInput;
 
