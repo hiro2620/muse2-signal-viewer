@@ -8,7 +8,8 @@ classdef MocLslInlet < handle
     
     
     properties
-        LastRequestedTime
+        LastRequestedTime;
+        StartTime;
     end
 
     methods
@@ -23,8 +24,8 @@ classdef MocLslInlet < handle
             z = sin(10*t) + 2*sin(20*t) + sin(30*t) + 2*sin(50*t) + sin(70*t) + (rand-0.5);
         end
 
-        function open_stream(~, ~)
-
+        function open_stream(obj, ~)
+            obj.StartTime = posixtime(datetime('now')) * 1000;
         end
         function close_stream(~, ~)
 
@@ -47,7 +48,7 @@ classdef MocLslInlet < handle
             %   Timestamps : A vector of timestamps for the returned samples.
 %             waitTimeMS = fix(rand * 1000);
 %             pause(waitTimeMS / 1000);
-            timeNow = posixtime(datetime('now')) * 1000;
+            timeNow = posixtime(datetime('now')) * 1000 - obj.StartTime;
             PERIOD = 4;
 
             timestamps = [];
@@ -58,12 +59,12 @@ classdef MocLslInlet < handle
                 timeEnd = ceilingMulOpen(timeNow, PERIOD);
 %                 disp(timeStart);
                 timestamps = zeros(1, (timeEnd - timeStart)/PERIOD + 1);
-                chunk = zeros((timeEnd - timeStart)/PERIOD + 1, 5);
+                chunk = zeros(5, (timeEnd - timeStart)/PERIOD + 1);
                 idx = 1;
                 for t = timeStart:PERIOD:timeEnd
                     timestamps(1, idx) = t;
                     for j = 1:4
-                        chunk(idx, j) = obj.wave(t);
+                        chunk(j, idx) = obj.wave(t);
                     end
                     idx = idx + 1;
                 end

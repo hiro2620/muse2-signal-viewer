@@ -6,11 +6,14 @@ lib = lsl_loadlib();
 
 % resolve a stream...
 disp('Resolving an EEG stream...');
-result = {};
+% result = {};
+% while isempty(result)
+%     result = lsl_resolve_byprop(lib,'name',[streamName '_eeg']);
+% end
 
+result = {};
 while isempty(result)
-    result = lsl_resolve_byprop(lib,'name',[streamName '_eeg']);
-end
+    result = lsl_resolve_byprop(lib,'type','EEG'); end
 
 % create a new inlet
 disp('Opening an inlet...');

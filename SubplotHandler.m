@@ -19,6 +19,7 @@ classdef SubplotHandler < handle
             xlabel(xla);
             ylabel(yla);
             ylim(yli);
+%             xlim([8,14]);
         end
         
         function update(obj, x, y)
