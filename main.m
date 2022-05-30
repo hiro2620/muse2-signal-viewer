@@ -12,7 +12,7 @@ initKeyInput;
 
 exitKeyCode = KbName(EXIT_KEY_CODE_NAME);
 % inlet = initInlet(STREAM_NAME);
-inlet = MocLslInlet(MUSE_SAMPLING_RATE);
+inlet = MockLslInlet(MUSE_SAMPLING_RATE);
 samplingCnt = fix(FFT_TIME_WINDOW * MUSE_SAMPLING_RATE);
 if mod(samplingCnt, 2) == 1
 %     warning("sampling count should be an even number");

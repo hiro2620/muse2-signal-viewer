@@ -1,4 +1,4 @@
-classdef MocLslInlet < handle
+classdef MockLslInlet < handle
     %MOCLSLINLET Summary of this class goes here
     %   Detailed explanation goes here
 
@@ -9,7 +9,7 @@ classdef MocLslInlet < handle
     end
 
     methods
-        function obj = MocLslInlet(samplingRate)
+        function obj = MockLslInlet(samplingRate)
             %MOCLSLINLET Construct an instance of this class
             %   Detailed explanation goes here
             obj.SamplingInterval = 1000 / samplingRate;
